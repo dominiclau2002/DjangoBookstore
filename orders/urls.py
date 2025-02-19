@@ -1,9 +1,8 @@
 #orders\urls.py
 
 from django.urls import path
-
-from . import views
+from .views import revenue_index
 
 urlpatterns = [
-    path("", views.index, name="index"),
+    path('',revenue_index, name="revenue-index"),
 ]

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -22,7 +23,7 @@ class Order(models.Model):
         COMPLETED = 'COMPLETED', 'Completed'
         CANCELLED = 'CANCELLED', 'Cancelled'
     
-    order_date = models.DateField(auto_now_add=True)
+    order_date = models.DateTimeField(default=timezone.now)
     status = models.CharField(max_length=10,choices=OrderStatusChoices.choices, default=OrderStatusChoices.PENDING)
     
     #Displayed when the Order instance is converted to a string, e.g Order 1 - PENDING
