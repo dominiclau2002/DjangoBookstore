@@ -2,43 +2,123 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Revenue Calculator</title>
-</head>
-<body>
+  </head>
+  <body>
+    <h1>Total Revenue Calculator For Django Bookstore</h1>
 
-    <h1>Total Revenue Calculator</h1>
-    
-    <form method="get">
-        <div>
-            <label for="start_date">Start Date (YYYY-MM-DD):</label>
-            <input type="text" id="start_date" name="start_date" value="{{ start_date }}">
-        </div>
-        <div>
-            <label for="end_date">End Date (YYYY-MM-DD):</label>
-            <input type="text" id="end_date" name="end_date" value="{{ end_date }}">
-        </div>
-        <div>
-            <button type="submit">Calculate Revenue</button>
-        </div>
+    <form id="revenueForm" method="get" onsubmit="return validateDates()">
+      <div style="display: flex; align-items: center; gap: 10px; margin-right: 10px;">
+        <label for="start_date" style="width: 180px; white-space: nowrap;"><span>Start Date (YYYY-MM-DD): </span></label>
+        <input
+          type="text"
+          id="start_date"
+          name="start_date"
+          value="{{ start_date }}"
+        />
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; margin-right: 10px;">
+        <label for="end_date" style="width: 180px; white-space: nowrap;"><span>End Date (YYYY-MM-DD):</span></label>
+        <input
+          type="text"
+          id="end_date"
+          name="end_date"
+          value="{{ end_date }}"
+        />
+      </div>
+      <div>
+        <button type="submit">Calculate Revenue</button>
+      </div>
     </form>
-    
-    {% if total_revenue is not None %}
-        <div class="result">
+
+    <!-- Error message placeholder -->
+     {% if error_message %}
+    <div id="error_message" class="error" style="color: red"><h2>
+        {{ error_message }}
+    </h2></div>
+    {% endif %}
+
+    <!-- Show revenue section only if there is a valid total revenue -->
+    {% if total_revenue is not None and error_message is None %}
+        <div class="result" id="result_section" style="display: block;">
             <h2>Total Revenue: ${{ total_revenue }}</h2>
         </div>
+    {% else %}
+        <div class="result" id="result_section" style="display: none;"></div>
     {% endif %}
+
+  </body>
+
+  <script>
+    function validateDates() {
+      // Get value from input fields
+      let startDate = document.getElementById("start_date").value;
+      let endDate = document.getElementById("end_date").value;
+      let errorMessageDiv = document.getElementById("error_message");
+      let resultSection = document.getElementById("result_section");
+
+        //Remove any existing error message
+      while (errorMessageDiv.firstChild) {
+        errorMessageDiv.removeChild(errorMessageDiv.firstChild);
+      };
+
+      //Ensure that both start and end dates are filled
+      if (startDate === "" || endDate === ""){
+        let errorTextNode = document.createTextNode("Please enter both start and end dates!");
+        errorMessageDiv.appendChild(errorTextNode)
+        resultSection.style.display = "none"; // Hide result section
+        return false;
+      };
+
+      //Convert startDate and endDate into JS Date objects
+        let start = new Date(startDate);
+        let end = new Date(endDate);
+
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+            errorMessageDiv.innerHTML = "<h2>Invalid date format. Please enter a valid date.</h2>";
+            resultSection.style.display = "none"; // Hide result section
+            return false;
+    }
+
+        if(start > end){
+            let errorTextNode = document.createTextNode("Start date cannot be after the end date!");
+            errorMessageDiv.appendChild(errorTextNode);
+            resultSection.style.display = "none"; // Hide result section
+            return false;
+        };
+
+       
+        return true; //allow form submission if all fields are valid
     
-</body>
+    }
 
-<style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        label { display: inline-block; width: 150px; margin-bottom: 10px; }
-        input { padding: 5px; margin-bottom: 10px; }
-        button { padding: 5px 10px; }
-        .result { margin-top: 20px; font-size: 1.2em; }
-</style>
 
+  </script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    label {
+      display: inline-block;
+      width: 150px;
+      margin-bottom: 10px;
+    }
+    input {
+      padding: 5px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 5px 10px;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
 </html>

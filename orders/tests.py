@@ -4,10 +4,12 @@
 import random
 from datetime import timedelta, datetime
 
+
 #import django packages and models
 from django.test import TestCase, Client
 from django.urls import reverse
 from .models import Order, OrderItem, OrderItemBook, Book
+from django.utils import timezone
 
 class OrderTestCase(TestCase):
     def setUp(self):
@@ -74,7 +76,8 @@ class OrderTestCase(TestCase):
         for i in range(num_orders):
             #Randomize the order date within the one-year range given
             random_offset = random.randint(0, total_days -1)
-            order_date = start_date + timedelta(days=random_offset)
+            naive_date = start_date + timedelta(days=random_offset)
+            order_date = timezone.make_aware(naive_date)
             
             #create an Order object with the order date that was randomly generated and assign the order status
             order = Order.objects.create(
@@ -111,5 +114,34 @@ class OrderTestCase(TestCase):
                     price_at_order=random_price
                 )
                 expected_total_revenue += quantity * random_price
+            
+            # Print order details and its contents.
+            print(f"\nOrder {order.id} - Date: {order.order_date}, Status: {order.status}")
+            for item in order.items.all():
+                for oib in item.order_items.all():
+                    print(f"   Book: {oib.book.name}, Quantity: {oib.quantity}, Price: {oib.price_at_order}")
 
         return expected_total_revenue
+    
+    def test_revenue_computation_over_date_range(self):
+        """
+        Test that the revenue view correctly computes the total revenue for COMPLETED orders
+        within a specified date range. Orders are created with random dates between 2024-01-01
+        and 2025-01-01, and each order contains one or more books from a fixed list with prices
+        varying between $10 and $30.
+        """
+        expected_revenue = self.create_orders_spanning_year(num_orders=100)
+        
+        # Call the revenue view with the full date range.
+        response = self.client.get(
+            reverse('revenue-index'),
+            {'start_date': '2024-01-01', 'end_date': '2025-01-01'}
+        )
+        self.assertEqual(response.status_code, 200)
+        
+        # Retrieve the computed revenue from the context passed to the template and round the floats of expected and computed revenue to 2d.p
+        computed_revenue = float(response.context.get('total_revenue'))
+        expected_revenue = round(expected_revenue,2)
+        self.assertEqual(round(computed_revenue,2), round(expected_revenue,2))
+        
+        print(f"Computed Revenue = ${computed_revenue} : Expected Revenue = ${expected_revenue}")
