@@ -60,16 +60,23 @@
       let errorMessageDiv = document.getElementById("error_message");
       let resultSection = document.getElementById("result_section");
 
-        //Remove any existing error message
-      while (errorMessageDiv.firstChild) {
-        errorMessageDiv.removeChild(errorMessageDiv.firstChild);
-      };
+          // Ensure error message div exists
+      if (!errorMessageDiv) {
+          errorMessageDiv = document.createElement("div");
+          errorMessageDiv.id = "error_message";
+          errorMessageDiv.style.color = "red";
+          document.body.insertBefore(errorMessageDiv, document.body.firstChild);
+      }
+
+      // Clear previous messages
+      errorMessageDiv.innerHTML = "";
 
       //Ensure that both start and end dates are filled
       if (startDate === "" || endDate === ""){
         let errorTextNode = document.createTextNode("Please enter both start and end dates!");
         errorMessageDiv.appendChild(errorTextNode)
         resultSection.style.display = "none"; // Hide result section
+        console.log("Missing start or end date");
         return false;
       };
 

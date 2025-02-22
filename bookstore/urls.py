@@ -18,9 +18,10 @@ from django.contrib import admin
 from django.urls import include, path
 from django.http import HttpResponse
 from django.views.generic import RedirectView
+from orders.views import revenue_index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('orders/', include('orders.urls')),
-    path('',RedirectView.as_view(url='/orders/',permanent=True),name='home')
+    path('orders/', include('orders.urls')),  # This ensures orders app is properly included
+    path('', RedirectView.as_view(url='/orders/', permanent=True)),  # Redirect root URL to orders/
 ]

@@ -32,8 +32,12 @@ def revenue_index(request):
     total = None
     error_message = None
     #GET query parameters
-    start_date_str = request.GET.get('start_date').strip()
-    end_date_str = request.GET.get('end_date').strip()
+    start_date_str = request.GET.get('start_date','').strip()
+    end_date_str = request.GET.get('end_date','').strip()
+    
+    # Ensure both dates are entered before proceeding with validation
+    if not start_date_str or not end_date_str:
+        error_message = "Please enter both start and end dates!"
     
     #Initialize start_date and end_date so they are always available
     start_date = None
